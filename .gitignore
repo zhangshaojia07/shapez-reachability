@@ -1,2 +1,7 @@
-data/1111_6.txt
+.venv
+__pycache__
 draft.txt
+output/*
+state_cache.pkl
+data/*
+!data/[01][01][01][01]_[2-4]*
