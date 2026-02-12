@@ -103,6 +103,4 @@ if __name__ == "__main__":
                 outs.write("\n"*5)
                 outs.write('y' if result else 'n')
 
-        print(f"completed {file_name}")
-
     checker.save_cache()
