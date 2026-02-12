@@ -4,4 +4,5 @@ draft.txt
 output/*
 state_cache.pkl
 data/*
-!data/[01][01][01][01]_[2-4]*
+!data/[01][01][01][01]_[2-4].txt
+!data/[01][01][01][01]_[2-4]_std.txt
