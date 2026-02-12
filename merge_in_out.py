@@ -2,12 +2,14 @@ from pathlib import Path
 
 def diff(file_out,content):
     count = 0
+    line_id = 1
     for i in range(len(content)-1):
         sub = content[i:i+2]
+        if sub[0]=='\n':
+            line_id += 1
         if sub == 'yn' or sub == 'ny':
             count += 1
-            line_id = content[:i].count('\n') + 1
-            print(f"{file_out} @ {line_id} : {sub}")
+            print(f"{file_out}:{line_id} , {sub}")
             if count >= 3:
                 break
     if count == 0:

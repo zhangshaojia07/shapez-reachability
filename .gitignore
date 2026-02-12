@@ -1,6 +1,5 @@
 .venv
 __pycache__
-draft.txt
 output/*
 state_cache.pkl
 data/*

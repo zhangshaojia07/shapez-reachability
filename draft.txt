@@ -1,0 +1,223 @@
+lemma O [no condition needed]:
+	X.col[2&3] both empty.
+	X.col[0][0] or X.col[1][0] => X reachable
+
+	proof.
+		repeat stacking semi-circles in col[2&3] and a semi-circle in col[0&3 / 1&2], then cut off col[2&3]
+		from bottom to top, it gives an incremental construction
+
+lemma A [no condition needed]:
+
+	Y is X add a higher piece (new top) (need not to be adjacent to the old top) in any column
+	shape X reachable => shape Y reachable.
+
+	proof.
+		retrace the old top in the operation tree.
+		1. stack. either upper or lower but upper has nothing in this column.
+		2. cut. old top must be preserved.
+		3. rotate. trivial.
+
+if cnt(bottom layer)==0:
+	lose # obvious
+
+if cnt(bottom layer)>=2:
+	win
+
+rotate so bot_layer[0] occupied
+
+lemma B [&condition]:
+	for any X
+	layer s.t. min(col[1/2/3].bot_has)>=layer+1 and X.col[0][layer&(layer+1)] exists
+	Y := X.col[:][layer+1:]
+	X reachable <=> Y reachable
+
+	proof.
+		"<=":
+			stack(Y,X.col[0][:layer+1]) = X
+		"=>":
+			1. stack.
+				1.1. tail is fully in lower. obvious
+				1.2. tail is fully in upper. impossible
+				1.3. tail is splited into lower and upper.
+					give the whole tail to lower. lower still can because lemma A. upper still can because of induction
+			2. cut. cut result is similar without the tail(i.e. col[0][:layer+1])
+			3. rotate. trivial
+
+if col[1] and col[3] both empty:
+	if col[2] empty:
+		win
+	else:
+		if col[0][col[2].bot_has&(~-1)] exist
+			win
+		if exist x s.t. col[0&2][x&(x+1)] all exist
+			win
+		lose # proved
+
+if col[1,2,3] is e,ne,ne or ne,ne,e:
+	win
+
+if col[1,2,3] is e,e,ne or ne,e,e:
+	if_mirror -> col[1,2,3] is e,e,ne
+	# last operation must be 'stack' (ignore rotate)
+	# sum := sum(exist_col(upper))
+	# sum as small as possible
+	# sum >= 2 to be useful
+	
+	if exist x s.t. col[1][x&(x+1)] both exist: # 0110 onto 1100
+		win
+		
+	if col[0][col[2].bot_has&(~-1)] exist or (exist x s.t. col[0&2][x&(x+1)] all exist): # 1010 onto 1100
+		win # (0110 onto 1010 & 1100 onto 1010 merged into this)
+
+	# only one case : sum==3, 1110 onto 1000
+	# after repeating 3 on 1, check the first stack type.
+	# - if 2 on 2 => already covered by sum == 2
+	# - if cnt(bot_layer) >= 2  =>  following:
+	# high_eq is the layer of the upper '-' in the top most '='. if no '=', it is the bot_has
+	label:1
+	if exist x <= min(high_eq(col[0&1&2])) s.t. sum((col[i][x] and (col[i].bot_has==x or col[i][x-1])) for i in 0,1,2)>=2:
+		win
+
+if col[1,2,3] is e,ne,e:
+	# last operation must be 'stack' (ignore rotate)
+	# sum := sum(exist_col(upper))
+	# sum as small as possible
+	# sum >= 2 to be useful
+
+	if exist x s.t. col[0][x&(x+1)] both exist: # 1100 stack with 1001
+		win
+	
+	if col[1][col[3].bot_has&(~-1)] exist or (exist x s.t. col[1&3][x&(x+1)] all exist): # 0101 onto 1100
+		win
+	if col[3][col[1].bot_has&(~-1)] exist: # 0101 onto 1001
+		win
+
+	# only one case : sum==3, 1101 onto 1000
+	goto label:1 with columns rotation
+
+# col[1,2,3] is e,e,e
+# 2 on 3
+# 3 on 2
+# 4 on 1
+
+'''
+condition for 1010 form to win:
+	1. col[0&2].bot_layer == 0
+	2. exist x s.t. col[0&2][x&(x+1)] all exist
+	[assume col[0][0] exists]
+	3. col[0][col[2].bot_has&(~-1)] exist
+1+2+3 <=> exist x s.t. sum(seg_bot(col[0&2],x))==2
+
+def seg_bot(col,x):
+	return col[x] and (col.bot_has==x or col[x-1])
+	
+condition for 1110 form to win:
+	1. exist x s.t. col[1][x&(x+1)] both exist
+	2. exist x <= min(high_eq(col[0&1&2])) s.t. sum(seg_bot(col[0&1&2],x))>=2
+	3. col[0&2] sat 1010 (deny col[0].bot_has == col[2].bot_has)
+'''
+
+每次堆叠的两者最多只有一个重叠的列。
+若 D stack on A 两个列x,y（x不等于）重叠，其中y是受力的。
+由归纳假设，D中每次stack均最多一个重叠列。
+找到 D 中最后一次在 x 列上有重叠的操作：B stack on C。
+若没有，换言之D在x列上没有任何stack操作。直接把x列全部给A即可。
+若有，则E:=（A 和 结果的x，y两列 求并）中x,y两列分别至少有一个'='。
+	此时将E的两个尖尖角削掉，被stack上两个'1100'form即可。
+注：此调整方式只会让A拥有的列的集合变为原来的超集
+
+我该以什么方式归类 1111？堆叠方式 4on1,3on2,2on3
+先找一些y的简单条件：
+* 连续两列均有'='。
+* >=2个底部。
+* 相对两列相同高度'='。（追加！太牛逼了我怎么之前没发现）
+
+4on1最终只能是无交堆叠，否则一开始就可以3on2 or 2on3
+so 4on1 的结论类似 3on1
+
+3on2 和 2on3 能否砍掉一个？
+3on2 不能解释为 2on3：来个例子（A）
+2on3 不能解释为 3on2：来个例子（B）
+'''
+100000
+000011
+010000
+011011
+'''好像均可
+好像不太好构造，或者我太困了。
+魔改一下std跑一个第一步不支持某种操作的答案然后diff一下
+哦哦 A 情况忘记一种 trivial 的case了：
+```
+100
+011
+001
+001
+```
+那除了 trivial 还有没有别的呢？当然有，非常多。自闭了。
+```
+1000
+0110
+0010
+0001
+```
+B 的例子：
+```
+1000
+0123
+0300
+0020
+```
+所以好像没法包含。
+先按2是1100还是1010分类：
+2是1100：
+	3on2:
+		3是1100+0110：连续两列均有'='。
+		3是3on1后的不重叠
+			(0111 on ...) on 1100, where col[x,0]==1 is 0 or 1 !!! %
+		3是1010on1100:
+			(1010 on 1100) on 1001 => 2on3
+			(1010 on 0110) on 1001 => 相对两列相同高度'='
+
+	2on3:
+		3是1100+0110：连续两列均有'='。
+		3是3on1后的不重叠
+			!!! %
+		3是1010on1100:
+			   1100 
+			on 0101
+			on 0110
+			!!! %
+
+			   1100
+			on 0101
+			on 0011
+			!!! %
+
+2是1010:
+	3on2:
+		此情况下'1010'其实是可以多管一列的，所以调整为 2on3
+
+	2on3:
+		3是1100+0110：
+			   1010
+			on 0110
+			on 0011
+			!!! %
+		3是3on1后的不重叠: to 4on1
+		3是1010on1100:连续两列均有'='。
+
+summary 2on3 & 3on2
+找col[1&3,x]最低的相同高度的seg_bot（不能同时是bot_has）（0&2也找），设高度为d，
+	看col[1&3]高度>d是否至少有一个seg_bot（即'='）。
+
+找col[1&3,x]最高的相同高度的seg_bot（0&2也找），
+	col[1&3]中，非[底部对面]列，找高度<d的'='(不能是（d和d-1）高度的)。
+
+枚举两个列（6种），找最低的相同高度的seg_bot。
+	另一列需要有一个seg_bot不低于它们。
+	最后一列的旁边两列需要至少有一个'='在其对应的seg_bot之上
+
+有三列（fall之后）构成3on1后的非重叠。
+	底部存在的列要么是另外那一列，要么是旁边二选一。
+	若为另外那一列：三列的旁边两列下方的有一个非空（所以选seg_bot不一定是最低的）
+
