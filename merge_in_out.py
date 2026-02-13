@@ -1,18 +1,22 @@
 from pathlib import Path
 
 def diff(file_out,content):
-    count = 0
+    count_yn = 0
+    count_ny = 0
     line_id = 1
     for i in range(len(content)-1):
         sub = content[i:i+2]
         if sub[0]=='\n':
             line_id += 1
-        if sub == 'yn' or sub == 'ny':
-            count += 1
-            print(f"{file_out}:{line_id} , {sub}")
-            if count >= 3:
-                break
-    if count == 0:
+        if sub == 'yn':
+            count_yn += 1
+            if count_yn <= 3:
+                print(f"{file_out}:{line_id} , {sub}")
+        if sub == 'ny':
+            count_ny += 1
+            if count_ny <= 3:
+                print(f"{file_out}:{line_id} , {sub}")
+    if count_yn == 0 and count_ny == 0:
         print(f"passed {file_out}")
 
 def merge(file_out,*args):
